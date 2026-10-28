@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HoloFloat Store</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="HoloFloat 3D hologram fan: upload pictures, video or your logo over WiFi and watch them float in mid-air.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one dark "showroom" — the live hologram is the hero, buy box beside it, then calm stacked bands. */
+:root {
+  --ink: #06070c;          /* page ground: a dark room, where holograms look best */
+  --panel: #0e111a;        /* raised surfaces */
+  --line: #222838;         /* hairlines */
+  --fg: #eef1f8;           /* text */
+  --muted: #9aa3b8;        /* secondary text, blue-biased grey */
+  --holo: #7cf4ff;         /* hologram cyan: the one bold accent */
+  --festive: #ff4d5e;      /* sale red, used only for prices and savings */
+  --on-holo: #041016;
+  --display: "Unbounded", "Arial Black", system-ui, sans-serif;
+  --body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --gutter-l: max(16px, env(safe-area-inset-left, 0px));
+  --gutter-r: max(16px, env(safe-area-inset-right, 0px));
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--ink); color: var(--fg);
+  font-family: var(--body); font-size: 16px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 10; background: var(--ink);
+}
+h1, h2, h3 { font-family: var(--display); line-height: 1.1; text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+h2 { font-size: clamp(1.6rem, 3.5vw, 2.4rem); }
+p { margin: 0; }
+a { color: inherit; }
+button, input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--holo); outline-offset: 3px; }
+.wrap { max-width: 1160px; margin: 0 auto; padding-left: var(--gutter-l); padding-right: var(--gutter-r); }
+.eyebrow { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--holo); }
+.band { padding-block: clamp(56px, 8vw, 96px); border-top: 1px solid var(--line); }
+.band-head { display: grid; gap: 12px; max-width: 640px; margin-bottom: 40px; }
+.band-head p { color: var(--muted); }
+
+/* Announcement */
+.announce { background: var(--holo); color: var(--on-holo); font-weight: 600; font-size: 0.85rem; text-align: center; }
+.announce .wrap { padding-block: 8px; min-height: 2.4em; display: grid; place-items: center; }
+.announce span { transition: opacity .4s; }
+
+/* Header */
+header.site {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  background: color-mix(in srgb, var(--ink) 88%, transparent);
+  backdrop-filter: blur(10px); border-bottom: 1px solid var(--line);
+}
+header.site .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 14px; }
+.logo { font-family: var(--display); font-weight: 800; font-size: 1.15rem; text-decoration: none; letter-spacing: -0.02em; }
+.logo b { color: var(--holo); font-weight: 800; }
+nav.main { display: flex; gap: 24px; font-size: 0.95rem; }
+nav.main a { text-decoration: none; color: var(--muted); }
+nav.main a:hover { color: var(--fg); }
+.cart-btn {
+  display: inline-flex; align-items: center; gap: 8px; background: none; border: 1px solid var(--line);
+  border-radius: 999px; padding: 6px 14px; cursor: pointer;
+}
+.cart-btn .count { background: var(--holo); color: var(--on-holo); border-radius: 999px; min-width: 1.4em; padding: 0 6px; font-size: 0.8rem; font-weight: 700; }
+@media (max-width: 720px) { nav.main { display: none; } }
+
+/* Product */
+.product { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(24px, 4vw, 56px); padding-block: clamp(24px, 5vw, 56px); align-items: start; }
+.product > * { min-width: 0; }
+@media (max-width: 880px) { .product { grid-template-columns: 1fr; } }
+.stage {
+  position: relative; aspect-ratio: 1 / 1; max-width: 100%; border-radius: 20px; overflow: hidden;
+  background: radial-gradient(circle at 50% 45%, #0c1a24 0%, var(--ink) 70%); border: 1px solid var(--line);
+}
+.stage canvas { width: 100%; height: 100%; display: block; }
+.stage .tag { position: absolute; left: 16px; top: 16px; font-family: var(--mono); font-size: 0.72rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+.scenes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.chip {
+  border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 7px 14px;
+  cursor: pointer; font-size: 0.88rem; color: var(--muted);
+}
+.chip[aria-pressed="true"] { border-color: var(--holo); color: var(--fg); }
+.stage-note { margin-top: 10px; font-size: 0.82rem; color: var(--muted); }
+
+.buy { display: grid; gap: 20px; }
+.buy h1 { font-size: clamp(1.8rem, 4vw, 2.7rem); }
+.buy .lede { color: var(--muted); font-size: 1.08rem; }
+.price-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 12px; font-variant-numeric: tabular-nums; }
+.price-now { font-family: var(--display); font-size: 2rem; font-weight: 700; }
+.price-was { color: var(--muted); text-decoration: line-through; }
+.save { background: var(--festive); color: #fff; font-weight: 700; font-size: 0.8rem; padding: 3px 10px; border-radius: 6px; letter-spacing: 0.04em; }
+ul.ticks { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+ul.ticks li { display: flex; gap: 10px; }
+ul.ticks li::before { content: ""; flex: none; width: 8px; height: 8px; margin-top: 0.55em; border-radius: 50%; background: var(--holo); box-shadow: 0 0 10px var(--holo); }
+
+.opt-label { font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; display: block; }
+.plugs { display: flex; flex-wrap: wrap; gap: 8px; border: 0; padding: 0; margin: 0; }
+.plugs label { position: relative; }
+.plugs input, .bundles input { position: absolute; opacity: 0; pointer-events: none; }
+.plugs span { display: inline-block; border: 1px solid var(--line); border-radius: 10px; padding: 8px 16px; cursor: pointer; background: var(--panel); }
+.plugs input:checked + span { border-color: var(--holo); box-shadow: inset 0 0 0 1px var(--holo); }
+.plugs input:focus-visible + span, .bundles input:focus-visible + .bundle { outline: 2px solid var(--holo); outline-offset: 2px; }
+
+.bundles { display: grid; gap: 10px; border: 0; padding: 0; margin: 0; }
+.bundle {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center;
+  border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; cursor: pointer; background: var(--panel);
+  position: relative; font-variant-numeric: tabular-nums;
+}
+.bundles input:checked + .bundle { border-color: var(--holo); box-shadow: inset 0 0 0 1px var(--holo); }
+.radio { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--muted); }
+.bundles input:checked + .bundle .radio { border-color: var(--holo); background: radial-gradient(circle, var(--holo) 45%, transparent 50%); }
+.bundle .t { font-weight: 600; }
+.bundle .s { font-size: 0.85rem; color: var(--muted); }
+.bundle .p { text-align: right; }
+.bundle .p b { display: block; font-size: 1.05rem; }
+.bundle .p s { color: var(--muted); font-size: 0.85rem; }
+.flag { position: absolute; top: -10px; right: 14px; background: var(--holo); color: var(--on-holo); font-size: 0.7rem; font-weight: 700; padding: 2px 10px; border-radius: 999px; letter-spacing: 0.06em; text-transform: uppercase; }
+
+.add {
+  width: 100%; border: 0; border-radius: 14px; padding: 18px; cursor: pointer;
+  background: var(--holo); color: var(--on-holo); font-family: var(--display); font-weight: 700; font-size: 1.05rem;
+  box-shadow: 0 0 30px color-mix(in srgb, var(--holo) 35%, transparent); transition: transform .15s;
+}
+.add:hover { transform: translateY(-1px); }
+.pay { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.pay span { font-family: var(--mono); font-size: 0.7rem; border: 1px solid var(--line); border-radius: 5px; padding: 3px 8px; color: var(--muted); }
+
+.timeline { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; font-size: 0.85rem; border-top: 1px solid var(--line); padding-top: 18px; }
+.timeline div { display: grid; gap: 2px; }
+.timeline b { font-weight: 600; }
+.timeline small { color: var(--muted); font-size: 0.8rem; }
+.guarantee { display: flex; gap: 12px; align-items: flex-start; background: var(--panel); border-radius: 14px; padding: 14px 16px; font-size: 0.92rem; }
+.guarantee strong { display: block; }
+.guarantee p { color: var(--muted); }
+.shield { flex: none; width: 28px; height: 28px; color: var(--holo); }
+
+/* Trust strip */
+.strip { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); overflow: hidden; }
+.strip ul { list-style: none; margin: 0; padding-block: 16px; display: flex; gap: 48px; width: max-content; animation: slide 30s linear infinite; font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding-left: 0; }
+.strip li::before { content: "◇ "; color: var(--holo); }
+@keyframes slide { to { transform: translateX(-50%); } }
+
+/* Uses */
+.uses { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+.uses > div { background: var(--ink); padding: clamp(20px, 3vw, 32px); display: grid; gap: 8px; align-content: start; min-width: 0; }
+.uses h3 { font-size: 1.1rem; }
+.uses p { color: var(--muted); }
+@media (max-width: 640px) { .uses { grid-template-columns: 1fr; } }
+
+/* Steps */
+ol.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; counter-reset: s; }
+ol.steps li { counter-increment: s; display: grid; gap: 8px; align-content: start; min-width: 0; }
+ol.steps li::before { content: counter(s); font-family: var(--display); font-size: 2.6rem; font-weight: 800; color: transparent; -webkit-text-stroke: 1px var(--holo); line-height: 1; }
+ol.steps h3 { font-size: 1.05rem; }
+ol.steps p { color: var(--muted); }
+@media (max-width: 760px) { ol.steps { grid-template-columns: 1fr; } }
+
+/* Compare */
+.compare-scroll { overflow-x: auto; }
+table.compare { width: 100%; border-collapse: collapse; min-width: 520px; }
+.compare th, .compare td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+.compare thead th { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.compare thead th.us { color: var(--holo); }
+.compare td:first-child { color: var(--muted); }
+.compare td.us { font-weight: 600; }
+
+/* FAQ */
+.faq { display: grid; grid-template-columns: 1fr 1.6fr; gap: 40px; }
+.faq > * { min-width: 0; }
+@media (max-width: 800px) { .faq { grid-template-columns: 1fr; } }
+details { border-bottom: 1px solid var(--line); }
+summary { cursor: pointer; padding: 18px 0; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; color: var(--holo); font-family: var(--mono); font-size: 1.2rem; line-height: 1; }
+details[open] summary::after { content: "−"; }
+details p { color: var(--muted); padding-bottom: 18px; max-width: 62ch; }
+
+/* Signup */
+.signup { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; }
+.signup > * { min-width: 0; }
+@media (max-width: 760px) { .signup { grid-template-columns: 1fr; } }
+.signup form { display: flex; gap: 8px; flex-wrap: wrap; }
+.signup input[type="email"] { flex: 1 1 220px; min-width: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+.signup button { border: 0; background: var(--fg); color: var(--ink); border-radius: 12px; padding: 14px 22px; font-weight: 700; cursor: pointer; }
+.signup .msg { color: var(--holo); font-size: 0.9rem; margin-top: 10px; }
+
+footer.site { border-top: 1px solid var(--line); padding-block: 40px; color: var(--muted); font-size: 0.9rem; }
+footer.site .wrap { display: grid; gap: 24px; }
+footer .cols { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px; }
+footer .links { display: flex; flex-wrap: wrap; gap: 20px; }
+footer .links a { text-decoration: none; }
+footer .links a:hover { color: var(--fg); }
+
+/* Cart drawer */
+.scrim { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 40; }
+.drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; width: min(420px, 100%); z-index: 50; background: var(--panel);
+  border-left: 1px solid var(--line); display: flex; flex-direction: column;
+  padding-top: calc(20px + env(safe-area-inset-top, 0px)); padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  padding-left: 20px; padding-right: max(20px, env(safe-area-inset-right, 0px));
+  transform: translateX(100%); transition: transform .3s ease; visibility: hidden;
+}
+.drawer.open { transform: none; visibility: visible; }
+.drawer-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.drawer-head h2 { font-size: 1.2rem; }
+.x { background: none; border: 1px solid var(--line); border-radius: 50%; width: 36px; height: 36px; cursor: pointer; }
+.drawer-body { flex: 1; overflow-y: auto; display: grid; gap: 16px; align-content: start; }
+.line-item { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding-bottom: 16px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.line-item small { color: var(--muted); grid-column: 1; }
+.line-item .remove { grid-column: 1; justify-self: start; background: none; border: 0; padding: 0; color: var(--muted); text-decoration: underline; cursor: pointer; font-size: 0.85rem; }
+.protect { display: flex; gap: 10px; align-items: flex-start; font-size: 0.9rem; cursor: pointer; }
+.protect input { margin-top: 4px; accent-color: var(--holo); }
+.protect small { display: block; color: var(--muted); }
+.empty { color: var(--muted); }
+.drawer-foot { display: grid; gap: 12px; border-top: 1px solid var(--line); padding-top: 16px; }
+.subtotal { display: flex; justify-content: space-between; font-weight: 700; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+.drawer-foot small { color: var(--muted); }
+.checkout-note { font-size: 0.85rem; color: var(--holo); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .strip ul { animation: none; }
+  .drawer, .add, .announce span { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="announce" role="region" aria-label="Offers">
+  <div class="wrap"><span id="announce-text">Christmas sale: up to 60% off</span></div>
+</div>
+
+<header class="site">
+  <div class="wrap">
+    <a class="logo" href="#top">Holo<b>Float</b></a>
+    <nav class="main" aria-label="Main">
+      <a href="#uses">Ideas</a>
+      <a href="#how">How it works</a>
+      <a href="#compare">Why HoloFloat</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <button class="cart-btn" id="open-cart" type="button" aria-label="Open basket">
+      Basket <span class="count" id="cart-count">0</span>
+    </button>
+  </div>
+</header>
+
+<main id="top">
+  <section class="wrap product" aria-labelledby="p-title">
+    <div>
+      <div class="stage">
+        <canvas id="holo" aria-label="Animated preview of a picture floating above a spinning hologram fan" role="img"></canvas>
+        <span class="tag" id="stage-tag">Live preview · Snowflake</span>
+      </div>
+      <div class="scenes" role="group" aria-label="Choose what the preview shows">
+        <button class="chip" type="button" data-scene="snowflake" aria-pressed="true">Snowflake</button>
+        <button class="chip" type="button" data-scene="gift" aria-pressed="false">Gift box</button>
+        <button class="chip" type="button" data-scene="logo" aria-pressed="false">Your logo</button>
+        <button class="chip" type="button" data-scene="ghost" aria-pressed="false">Ghost</button>
+      </div>
+      <p class="stage-note">Animated illustration. The real fan shows full-colour pictures and video you upload.</p>
+    </div>
+
+    <div class="buy">
+      <p class="eyebrow">WiFi 3D hologram fan</p>
+      <h1 id="p-title">Pictures that float in mid-air</h1>
+      <p class="lede">Upload any image, video or logo from your phone. The LED blades spin so fast they disappear, and your picture hangs in the air like a hologram.</p>
+
+      <div class="price-row">
+        <span class="price-now" id="price-now">£79.99</span>
+        <span class="price-was" id="price-was">£159.99</span>
+        <span class="save" id="price-save">SAVE 50%</span>
+      </div>
+
+      <ul class="ticks">
+        <li>Control it from your phone over WiFi</li>
+        <li>Plays your own photos, videos and logos (MP4, JPG, PNG)</li>
+        <li>Stops people in their tracks in a shop window</li>
+      </ul>
+
+      <div>
+        <span class="opt-label" id="plug-label">Plug: <span id="plug-name">UK plug</span></span>
+        <fieldset class="plugs" aria-labelledby="plug-label">
+          <label><input type="radio" name="plug" id="plug-uk" value="UK plug" checked><span>UK</span></label>
+          <label><input type="radio" name="plug" id="plug-eu" value="EU plug"><span>EU</span></label>
+          <label><input type="radio" name="plug" id="plug-us" value="US plug"><span>US</span></label>
+          <label><input type="radio" name="plug" id="plug-au" value="AU plug"><span>AU</span></label>
+        </fieldset>
+      </div>
+
+      <fieldset class="bundles" aria-label="How many">
+        <label>
+          <input type="radio" name="bundle" id="b1" value="1" checked>
+          <span class="bundle">
+            <span class="radio" aria-hidden="true"></span>
+            <span><span class="t">1 HoloFloat</span><br><span class="s">Free tracked delivery</span></span>
+            <span class="p"><b>£79.99</b><s>£159.99</s></span>
+          </span>
+        </label>
+        <label>
+          <input type="radio" name="bundle" id="b2" value="2">
+          <span class="bundle">
+            <span class="flag">Most popular</span>
+            <span class="radio" aria-hidden="true"></span>
+            <span><span class="t">2 HoloFloats</span><br><span class="s">£70.00 each · Save 56%</span></span>
+            <span class="p"><b>£139.99</b><s>£319.98</s></span>
+          </span>
+        </label>
+        <label>
+          <input type="radio" name="bundle" id="b3" value="3">
+          <span class="bundle">
+            <span class="radio" aria-hidden="true"></span>
+            <span><span class="t">3 HoloFloats</span><br><span class="s">£63.33 each · Save 60%</span></span>
+            <span class="p"><b>£189.99</b><s>£479.97</s></span>
+          </span>
+        </label>
+      </fieldset>
+
+      <button class="add" id="add" type="button">Add to basket</button>
+      <div class="pay" aria-label="Accepted payments"><span>VISA</span><span>MASTERCARD</span><span>AMEX</span><span>APPLE PAY</span><span>GOOGLE PAY</span><span>PAYPAL</span></div>
+
+      <div class="timeline" aria-label="Delivery estimate">
+        <div><b>Ordered</b><small id="d-order">Today</small></div>
+        <div><b>Dispatched</b><small id="d-ship">—</small></div>
+        <div><b>Delivered</b><small id="d-deliver">—</small></div>
+      </div>
+
+      <div class="guarantee">
+        <svg class="shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>
+        <div><strong>30-day money-back guarantee</strong><p>If it doesn't wow you, send it back within 30 days for a full refund.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="strip" aria-hidden="true">
+    <ul>
+      <li>Free tracked UK delivery</li><li>30-day money-back guarantee</li><li>WiFi app control</li><li>Upload photos, video &amp; logos</li><li>Secure checkout</li>
+      <li>Free tracked UK delivery</li><li>30-day money-back guarantee</li><li>WiFi app control</li><li>Upload photos, video &amp; logos</li><li>Secure checkout</li>
+    </ul>
+  </div>
+
+  <section class="band" id="uses" aria-labelledby="uses-title">
+    <div class="wrap">
+      <div class="band-head">
+        <p class="eyebrow">Ideas</p>
+        <h2 id="uses-title">One fan, a different show every season</h2>
+        <p>Swap what it shows in seconds from your phone. Santa in December, ghosts in October, your logo all year.</p>
+      </div>
+      <div class="uses">
+        <div><h3>Christmas windows</h3><p>A floating Santa, snowfall or a spinning bauble in the window. Neighbours and passers-by stop to look.</p></div>
+        <div><h3>Shop and café signage</h3><p>Put your logo or today's offer in the air behind the counter. It gets noticed far more than a printed poster.</p></div>
+        <div><h3>Parties and events</h3><p>Birthday names, wedding initials or a countdown floating above the dance floor.</p></div>
+        <div><h3>Halloween scares</h3><p>A ghost or skull drifting in a dark window. Load a spooky video loop and wait for the reactions.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="how" aria-labelledby="how-title">
+    <div class="wrap">
+      <div class="band-head">
+        <p class="eyebrow">How it works</p>
+        <h2 id="how-title">Floating in three steps</h2>
+      </div>
+      <ol class="steps">
+        <li><h3>Mount and plug in</h3><p>Fix the fan to a wall or stand where people can see it but can't reach the blades, then plug it in.</p></li>
+        <li><h3>Connect your phone</h3><p>Join the fan's WiFi from the app. No cables and no computer needed.</p></li>
+        <li><h3>Upload and play</h3><p>Pick photos, videos or your logo. Build a playlist and the fan loops it for you.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="band" id="compare" aria-labelledby="compare-title">
+    <div class="wrap">
+      <div class="band-head">
+        <p class="eyebrow">Why HoloFloat</p>
+        <h2 id="compare-title">Printed sign vs HoloFloat</h2>
+      </div>
+      <div class="compare-scroll">
+        <table class="compare">
+          <thead><tr><th scope="col"></th><th scope="col">Printed sign or poster</th><th scope="col" class="us">HoloFloat</th></tr></thead>
+          <tbody>
+            <tr><td>Gets noticed</td><td>Blends into the background</td><td class="us">Moving 3D picture in mid-air</td></tr>
+            <tr><td>Changing it</td><td>Reprint every time</td><td class="us">New picture from your phone in seconds</td></tr>
+            <tr><td>Video</td><td>No</td><td class="us">Yes, plays clips on a loop</td></tr>
+            <tr><td>Seasonal use</td><td>One design, one season</td><td class="us">Christmas, Halloween, sales, birthdays</td></tr>
+            <tr><td>After dark</td><td>Disappears</td><td class="us">Glows brightest in dim light</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reviews: add a section here once you have real customer reviews. Don't publish made-up ones. -->
+
+  <section class="band" id="faq" aria-labelledby="faq-title">
+    <div class="wrap faq">
+      <div class="band-head">
+        <p class="eyebrow">FAQ</p>
+        <h2 id="faq-title">Questions</h2>
+        <p>Something else? Email <span id="support-email">support@holofloat.store</span> and we'll reply within one working day.</p>
+      </div>
+      <div>
+        <details><summary>When will it arrive?</summary><p>Orders are dispatched within 1–2 working days with free tracked delivery, and usually arrive in 7–12 days. We email your tracking number when it ships.</p></details>
+        <details><summary>How does the hologram work?</summary><p>The fan's arms are lined with LEDs. As they spin, the LEDs light up in exact patterns, and your eyes blend them into one picture that seems to float in the air.</p></details>
+        <details><summary>What can I show on it?</summary><p>Photos, videos and logos in MP4, AVI, JPG or PNG format, uploaded over WiFi from the app on your phone or from a computer. Pictures with a black background look best, because black areas stay invisible and the subject appears to float.</p></details>
+        <details><summary>Can I adjust it?</summary><p>Yes. You can change the brightness and rotate your picture to the right angle from the app.</p></details>
+        <details><summary>Does it work in daylight?</summary><p>It works indoors in normal light and looks most striking in dim rooms, shop windows at night, and evening events. Very bright direct sunlight washes it out.</p></details>
+        <details><summary>Is it safe?</summary><p>The blades spin fast, so mount it out of reach of children, pets and people walking past, and switch it off before touching it.</p></details>
+        <details><summary>Which plug do I need?</summary><p>Choose UK, EU, US or AU when you order and we'll send the matching power adapter. It works on any mains voltage from 100 to 240V.</p></details>
+        <details><summary>What if I'm not happy with it?</summary><p>You have 30 days to return it for a full refund. Email us and we'll sort it out.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="signup-title">
+    <div class="wrap signup">
+      <div class="band-head" style="margin-bottom:0">
+        <h2 id="signup-title">Get £5 off your first order</h2>
+        <p>Join the list for new hologram ideas and members-only deals. No spam.</p>
+      </div>
+      <div>
+        <form id="signup" novalidate>
+          <label for="email" class="opt-label" style="flex-basis:100%;margin:0">Email address</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email" required>
+          <button type="submit">Send my code</button>
+        </form>
+        <p class="msg" id="signup-msg" hidden></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <div class="cols">
+      <div><a class="logo" href="#top">Holo<b>Float</b></a><p style="margin-top:8px;max-width:40ch">3D hologram fans for shop windows, parties and every season.</p></div>
+      <div class="links"><a href="#faq">Delivery</a><a href="#faq">Returns &amp; refunds</a><a href="#faq">Contact</a><a href="#top">Terms</a><a href="#top">Privacy</a></div>
+    </div>
+    <p>© <span id="year">2026</span> HoloFloat · Free tracked delivery · 30-day money-back guarantee</p>
+  </div>
+</footer>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" aria-labelledby="cart-title" aria-hidden="true">
+  <div class="drawer-head">
+    <h2 id="cart-title">Your basket</h2>
+    <button class="x" id="close-cart" type="button" aria-label="Close basket">✕</button>
+  </div>
+  <div class="drawer-body" id="cart-body"></div>
+  <div class="drawer-foot">
+    <div class="subtotal"><span>Subtotal</span><span id="subtotal">£0.00</span></div>
+    <small>Free tracked delivery. VAT included.</small>
+    <button class="add" id="checkout" type="button">Checkout securely</button>
+    <p class="checkout-note" id="checkout-note" hidden>Checkout isn't connected yet. It will go to your payment provider (e.g. Shopify or Stripe) once the store is live.</p>
+  </div>
+</aside>
+
+<script>
+(function () {
+  "use strict";
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var gbp = function (n) { return "£" + n.toFixed(2); };
+
+  /* ---------- Pricing ---------- */
+  var BUNDLES = {
+    1: { price: 79.99, was: 159.99, label: "1 HoloFloat" },
+    2: { price: 139.99, was: 319.98, label: "2 HoloFloats" },
+    3: { price: 189.99, was: 479.97, label: "3 HoloFloats" }
+  };
+  var PROTECTION = 2.99;
+
+  function selected(name) { var el = document.querySelector('input[name="' + name + '"]:checked'); return el ? el.value : null; }
+
+  function renderPrice() {
+    var b = BUNDLES[selected("bundle")];
+    document.getElementById("price-now").textContent = gbp(b.price);
+    document.getElementById("price-was").textContent = gbp(b.was);
+    document.getElementById("price-save").textContent = "SAVE " + Math.round((1 - b.price / b.was) * 100) + "%";
+    document.getElementById("plug-name").textContent = selected("plug");
+  }
+  document.querySelectorAll('input[name="bundle"], input[name="plug"]').forEach(function (el) { el.addEventListener("change", renderPrice); });
+
+  /* ---------- Delivery dates ---------- */
+  function addWorkingDays(d, n) { var r = new Date(d); while (n > 0) { r.setDate(r.getDate() + 1); var w = r.getDay(); if (w !== 0 && w !== 6) n--; } return r; }
+  function addDays(d, n) { var r = new Date(d); r.setDate(r.getDate() + n); return r; }
+  var fmt = function (d) { return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" }); };
+  var today = new Date();
+  document.getElementById("d-order").textContent = fmt(today);
+  document.getElementById("d-ship").textContent = fmt(addWorkingDays(today, 2));
+  document.getElementById("d-deliver").textContent = fmt(addDays(today, 7)) + " – " + fmt(addDays(today, 12));
+  document.getElementById("year").textContent = today.getFullYear();
+
+  /* ---------- Announcement ---------- */
+  var msgs = ["Christmas sale: up to 60% off", "Free tracked UK delivery", "30-day money-back guarantee"];
+  var mi = 0, at = document.getElementById("announce-text");
+  if (!reduce) setInterval(function () {
+    at.style.opacity = 0;
+    setTimeout(function () { mi = (mi + 1) % msgs.length; at.textContent = msgs[mi]; at.style.opacity = 1; }, 400);
+  }, 4000);
+
+  /* ---------- Basket ---------- */
+  var cart = [];  // { bundle, plug }
+  var protect = true;
+  var drawer = document.getElementById("drawer"), scrim = document.getElementById("scrim");
+
+  function openCart() { drawer.classList.add("open"); drawer.setAttribute("aria-hidden", "false"); scrim.hidden = false; document.getElementById("close-cart").focus(); }
+  function closeCart() { drawer.classList.remove("open"); drawer.setAttribute("aria-hidden", "true"); scrim.hidden = true; document.getElementById("checkout-note").hidden = true; }
+
+  function renderCart() {
+    var body = document.getElementById("cart-body");
+    body.innerHTML = "";
+    var total = 0;
+    if (!cart.length) {
+      var p = document.createElement("p"); p.className = "empty"; p.textContent = "Your basket is empty."; body.appendChild(p);
+    }
+    cart.forEach(function (item, i) {
+      var b = BUNDLES[item.bundle]; total += b.price;
+      var row = document.createElement("div"); row.className = "line-item";
+      var name = document.createElement("strong"); name.textContent = b.label;
+      var price = document.createElement("span"); price.textContent = gbp(b.price);
+      var meta = document.createElement("small"); meta.textContent = "3D hologram fan · " + item.plug;
+      var rm = document.createElement("button"); rm.type = "button"; rm.className = "remove"; rm.textContent = "Remove";
+      rm.addEventListener("click", function () { cart.splice(i, 1); renderCart(); });
+      row.append(name, price, meta, rm); body.appendChild(row);
+    });
+    if (cart.length) {
+      var lab = document.createElement("label"); lab.className = "protect";
+      var cb = document.createElement("input"); cb.type = "checkbox"; cb.id = "protection"; cb.checked = protect;
+      cb.addEventListener("change", function () { protect = cb.checked; renderCart(); });
+      var txt = document.createElement("span");
+      txt.innerHTML = "<strong>Delivery protection " + gbp(PROTECTION) + "</strong><small>Free replacement if your parcel is lost, stolen or damaged.</small>";
+      lab.append(cb, txt); body.appendChild(lab);
+      if (protect) total += PROTECTION;
+    }
+    document.getElementById("subtotal").textContent = gbp(total);
+    document.getElementById("cart-count").textContent = cart.reduce(function (n, it) { return n + Number(it.bundle); }, 0);
+  }
+
+  document.getElementById("add").addEventListener("click", function () { cart.push({ bundle: selected("bundle"), plug: selected("plug") }); renderCart(); openCart(); });
+  document.getElementById("open-cart").addEventListener("click", openCart);
+  document.getElementById("close-cart").addEventListener("click", closeCart);
+  scrim.addEventListener("click", closeCart);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeCart(); });
+  document.getElementById("checkout").addEventListener("click", function () { if (cart.length) document.getElementById("checkout-note").hidden = false; });
+  renderCart(); renderPrice();
+
+  /* ---------- Signup ---------- */
+  document.getElementById("signup").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var email = document.getElementById("email"), msg = document.getElementById("signup-msg");
+    msg.hidden = false;
+    msg.textContent = email.checkValidity() ? "Thanks! Your code is on its way to " + email.value + "." : "Enter a valid email address, like you@example.com.";
+  });
+
+  /* ---------- Hologram preview ---------- */
+  var canvas = document.getElementById("holo"), ctx = canvas.getContext("2d");
+  var N = 1100, W = 0, H = 0, dpr = 1;
+  var cur = [], target = [];
+  var rnd = Math.random;
+
+  function snowflake() {
+    var p = [];
+    for (var i = 0; i < N; i++) {
+      var arm = Math.floor(rnd() * 6), a = arm * Math.PI / 3, x, y;
+      if (rnd() < 0.62) { var r = rnd() * 0.95; x = Math.cos(a) * r; y = Math.sin(a) * r; }
+      else {
+        var base = [0.35, 0.6, 0.8][Math.floor(rnd() * 3)], len = rnd() * (0.32 - base * 0.18), side = rnd() < 0.5 ? 1 : -1, b = a + side * Math.PI / 4;
+        x = Math.cos(a) * base + Math.cos(b) * len; y = Math.sin(a) * base + Math.sin(b) * len;
+      }
+      p.push([x, y, (rnd() - 0.5) * 0.1]);
+    }
+    return p;
+  }
+  function gift() {
+    var p = [], s = 0.5;
+    var edges = [];
+    [-1, 1].forEach(function (a) { [-1, 1].forEach(function (b) { edges.push([[-1, a, b], [1, a, b]], [[a, -1, b], [a, 1, b]], [[a, b, -1], [a, b, 1]]); }); });
+    for (var i = 0; i < N; i++) {
+      var t = rnd(), q;
+      if (i < N * 0.55) { var e = edges[i % 12]; q = [0, 1, 2].map(function (k) { return (e[0][k] + (e[1][k] - e[0][k]) * t) * s; }); q[1] += 0.12; }
+      else if (i < N * 0.8) {
+        var u = rnd() * 4, c = (u % 1) * 2 - 1;  // ribbon around the box
+        q = u < 1 ? [0, c, 1] : u < 2 ? [0, c, -1] : u < 3 ? [1, c, 0] : [-1, c, 0];
+        if (u < 2 && rnd() < 0.5) q = [c, 1, 0];
+        q = q.map(function (v) { return v * s; }); q[1] += 0.12;
+      } else {
+        var th = rnd() * Math.PI * 2, side = rnd() < 0.5 ? 1 : -1;  // bow loops
+        q = [side * (0.18 + Math.cos(th) * 0.16), -s + 0.12 - 0.14 - Math.sin(th) * 0.12, 0];
+      }
+      p.push(q);
+    }
+    return p;
+  }
+  function fromText(str, font) {
+    var oc = document.createElement("canvas"), w = 420, h = 160; oc.width = w; oc.height = h;
+    var o = oc.getContext("2d"); o.fillStyle = "#fff"; o.textAlign = "center"; o.textBaseline = "middle"; o.font = font;
+    var lines = str.split("\n");
+    lines.forEach(function (l, i) { o.fillText(l, w / 2, h / 2 + (i - (lines.length - 1) / 2) * 62); });
+    var d = o.getImageData(0, 0, w, h).data, hits = [];
+    for (var y = 0; y < h; y += 2) for (var x = 0; x < w; x += 2) if (d[(y * w + x) * 4 + 3] > 128) hits.push([x, y]);
+    var p = [];
+    for (var i = 0; i < N; i++) { var hp = hits[Math.floor(rnd() * hits.length)] || [w / 2, h / 2]; p.push([(hp[0] - w / 2) / (w / 2) * 0.95, (hp[1] - h / 2) / (w / 2) * 0.95, (rnd() - 0.5) * 0.08]); }
+    return p;
+  }
+  function ghost() {
+    var p = [];
+    for (var i = 0; i < N; i++) {
+      var t = rnd() * Math.PI * 2, x, y;
+      if (i < N * 0.15) {  // eyes
+        var ex = i % 2 ? 0.17 : -0.17, r = Math.sqrt(rnd()) * 0.08; x = ex + Math.cos(t) * r; y = -0.2 + Math.sin(t) * r * 1.4;
+      } else if (rnd() < 0.55) {  // head outline
+        var a = Math.PI + rnd() * Math.PI; x = Math.cos(a) * 0.5; y = -0.1 + Math.sin(a) * 0.55;
+      } else if (rnd() < 0.6) {  // sides
+        x = (rnd() < 0.5 ? -0.5 : 0.5); y = -0.1 + rnd() * 0.6;
+      } else {  // wavy hem
+        x = -0.5 + rnd(); y = 0.5 + Math.sin((x + 0.5) * Math.PI * 4) * 0.07;
+      }
+      p.push([x, y, (rnd() - 0.5) * 0.12]);
+    }
+    return p;
+  }
+  var SCENES = {
+    snowflake: { make: snowflake, name: "Snowflake", hue: 188 },
+    gift: { make: gift, name: "Gift box", hue: 350 },
+    logo: { make: function () { return fromText("YOUR\nLOGO", "800 64px Unbounded, Arial Black, sans-serif"); }, name: "Your logo", hue: 188 },
+    ghost: { make: ghost, name: "Ghost", hue: 160 }
+  };
+  var hue = 188;
+
+  function setScene(key) {
+    target = SCENES[key].make(); hue = SCENES[key].hue;
+    if (!cur.length) cur = target.map(function (v) { return v.slice(); });
+    document.getElementById("stage-tag").textContent = "Live preview · " + SCENES[key].name;
+    document.querySelectorAll(".chip").forEach(function (c) { c.setAttribute("aria-pressed", String(c.dataset.scene === key)); });
+  }
+  document.querySelectorAll(".chip").forEach(function (c) { c.addEventListener("click", function () { setScene(c.dataset.scene); }); });
+
+  function resize() {
+    var r = canvas.getBoundingClientRect(); dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = canvas.width = Math.max(1, Math.round(r.width * dpr)); H = canvas.height = Math.max(1, Math.round(r.height * dpr));
+    ctx.fillStyle = "#06070c"; ctx.fillRect(0, 0, W, H);
+  }
+  window.addEventListener("resize", resize);
+
+  var rot = 0, blade = 0;
+  function frame() {
+    var cx = W / 2, cy = H / 2, R = Math.min(W, H) * 0.4;
+    ctx.globalCompositeOperation = "source-over";
+    ctx.fillStyle = "rgba(6,7,12,0.32)"; ctx.fillRect(0, 0, W, H);
+
+    // fan: motor hub and faint blade blur
+    ctx.strokeStyle = "rgba(124,244,255,0.06)"; ctx.lineWidth = 1 * dpr;
+    ctx.beginPath(); ctx.arc(cx, cy, R * 1.12, 0, Math.PI * 2); ctx.stroke();
+    if (!reduce) {
+      for (var k = 0; k < 4; k++) {
+        var a = blade + k * Math.PI / 2;
+        ctx.strokeStyle = "rgba(160,190,220,0.05)"; ctx.lineWidth = 3 * dpr;
+        ctx.beginPath(); ctx.moveTo(cx - Math.cos(a) * R * 1.1, cy - Math.sin(a) * R * 1.1); ctx.lineTo(cx + Math.cos(a) * R * 1.1, cy + Math.sin(a) * R * 1.1); ctx.stroke();
+      }
+      blade += 0.37;
+    }
+    ctx.fillStyle = "#1a2030"; ctx.beginPath(); ctx.arc(cx, cy, 6 * dpr, 0, Math.PI * 2); ctx.fill();
+
+    // points
+    rot += reduce ? 0.003 : 0.012;
+    var cs = Math.cos(rot), sn = Math.sin(rot), tilt = 0.18;
+    ctx.globalCompositeOperation = "lighter";
+    for (var i = 0; i < cur.length; i++) {
+      var c = cur[i], t = target[i];
+      c[0] += (t[0] - c[0]) * 0.07; c[1] += (t[1] - c[1]) * 0.07; c[2] += (t[2] - c[2]) * 0.07;
+      var x = c[0] * cs - c[2] * sn, z = c[0] * sn + c[2] * cs, y = c[1];
+      var y2 = y * Math.cos(tilt) - z * Math.sin(tilt), z2 = y * Math.sin(tilt) + z * Math.cos(tilt);
+      var s = 1.6 / (2.2 - z2), px = cx + x * R * s, py = cy + y2 * R * s;
+      var flick = 0.55 + 0.45 * Math.sin(i * 12.9898 + rot * 40);
+      ctx.fillStyle = "hsla(" + (hue + y * 30) + ",100%," + (60 + z2 * 20) + "%," + (0.55 * flick) + ")";
+      var size = (1.3 + s) * dpr;
+      ctx.fillRect(px - size / 2, py - size / 2, size, size);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  resize(); setScene("snowflake");
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (document.querySelector('.chip[data-scene="logo"]').getAttribute("aria-pressed") === "true") setScene("logo"); });
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
