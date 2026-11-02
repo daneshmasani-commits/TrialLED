@@ -3,9 +3,12 @@
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var cfg = window.HoloFloat || {};
   var root = (window.Shopify && Shopify.routes && Shopify.routes.root) || "/";
+  var fmtCache = null;
   var money = function (cents) {
-    var n = (cents / 100).toFixed(2);
-    return (cfg.moneyFormat || "£{{amount}}").replace(/\{\{\s*\w+\s*\}\}/, n);
+    try {
+      fmtCache = fmtCache || new Intl.NumberFormat(cfg.locale || "en-GB", { style: "currency", currency: cfg.currency || "GBP" });
+      return fmtCache.format(cents / 100);
+    } catch (e) { return (cents / 100).toFixed(2) + " " + (cfg.currency || ""); }
   };
   var $ = function (id) { return document.getElementById(id); };
 

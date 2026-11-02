@@ -15,6 +15,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
   {{ 'holofloat.css' | asset_url | stylesheet_tag }}
+  {{ 'holofloat-markets.css' | asset_url | stylesheet_tag }}
   <style>
     :root { --holo: {{ settings.color_accent }}; --festive: {{ settings.color_sale }}; --ink: {{ settings.color_background }}; }
   </style>
@@ -24,7 +25,8 @@
   -%}
   <script>
     window.HoloFloat = {
-      moneyFormat: {{ shop.money_format | json }},
+      currency: {{ cart.currency.iso_code | json }},
+      locale: {{ request.locale.iso_code | append: "-" | append: localization.country.iso_code | json }},
       addLabel: "Add to basket",
       announcements: [{% for a in announce %}{% assign t = a | strip %}{% if t != blank %}{{ t | json }}{% unless forloop.last %},{% endunless %}{% endif %}{% endfor %}],
       protection: {% if prot != blank and prot.available %}{ variantId: {{ prot.selected_or_first_available_variant.id }}, title: {{ prot.title | json }}, price: {{ prot.selected_or_first_available_variant.price }}, blurb: {{ settings.protection_blurb | json }} }{% else %}null{% endif %}
@@ -33,7 +35,7 @@
   {{ content_for_header }}
 </head>
 <body>
-  <a class="visually-hidden" href="#top" style="position:absolute;left:-9999px">Skip to content</a>
+  <a class="visually-hidden" href="#top">Skip to content</a>
   {%- assign first_msg = announce | first | strip -%}
   {%- if first_msg != blank -%}
   <div class="announce" role="region" aria-label="Offers">
@@ -54,9 +56,22 @@
           <a href="{{ routes.root_url }}#faq">FAQ</a>
         {%- endfor -%}
       </nav>
+      <div class="head-actions">
+      {%- if localization.available_countries.size > 1 -%}
+        {%- form 'localization', id: 'country-form', class: 'country-form' -%}
+          <label class="visually-hidden" for="country-select">Country</label>
+          <select id="country-select" name="country_code" onchange="this.form.submit()" aria-label="Country / currency">
+            {%- for c in localization.available_countries -%}
+              <option value="{{ c.iso_code }}"{% if c.iso_code == localization.country.iso_code %} selected{% endif %}>{{ c.name }} ({{ c.currency.iso_code }} {{ c.currency.symbol }})</option>
+            {%- endfor -%}
+          </select>
+          <noscript><button type="submit">Update</button></noscript>
+        {%- endform -%}
+      {%- endif -%}
       <button class="cart-btn" id="open-cart" type="button" aria-label="Open basket">
         Basket <span class="count" id="cart-count">{{ cart.item_count }}</span>
       </button>
+      </div>
     </div>
   </header>
 

@@ -240,3 +240,4 @@ footer .links a:hover { color: var(--fg); }
 .errors { color: var(--festive); }
 table.simple { width: 100%; border-collapse: collapse; }
 table.simple th, table.simple td { text-align: left; padding: 10px; border-bottom: 1px solid var(--line); }
+

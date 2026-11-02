@@ -1,0 +1,8 @@
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.visually-hidden:focus { position: fixed !important; left: 16px; top: 16px; width: auto; height: auto; clip: auto; z-index: 100; background: var(--holo); color: var(--on-holo); padding: 8px 14px; border-radius: 8px; }
+.head-actions { display: flex; align-items: center; gap: 10px; }
+.country-form { margin: 0; }
+.country-form select { appearance: none; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 6px 30px 6px 14px; font-size: 0.85rem; cursor: pointer; max-width: 46vw;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 16px) 55%, calc(100% - 11px) 55%; background-size: 5px 5px; background-repeat: no-repeat; }
+@media (max-width: 420px) { .country-form select { max-width: 38vw; } }
