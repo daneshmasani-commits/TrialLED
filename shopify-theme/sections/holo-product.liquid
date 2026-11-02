@@ -1,0 +1,178 @@
+{%- liquid
+  assign p = product
+  if p == blank
+    assign p = section.settings.product
+  endif
+  assign bundle_index = -1
+  assign plug_index = -1
+  for opt in p.options_with_values
+    assign oname = opt.name | downcase
+    if oname == section.settings.bundle_option
+      assign bundle_index = forloop.index0
+    elsif oname == section.settings.plug_option
+      assign plug_index = forloop.index0
+    endif
+  endfor
+  assign v = p.selected_or_first_available_variant
+  assign update_url = false
+  if template.name == 'product'
+    assign update_url = true
+  endif
+-%}
+
+{%- if p == blank -%}
+  <section class="wrap page"><h1>Choose a product</h1><p class="rte">Open the theme editor and pick the HoloFloat product in the “Product hero” section.</p></section>
+{%- else -%}
+<section class="wrap product" aria-labelledby="p-title">
+  <div>
+    <div class="stage">
+      {%- if section.settings.media_mode == 'photo' and p.featured_media -%}
+        {{ p.featured_media | image_url: width: 1200 | image_tag: class: 'photo', alt: p.featured_media.alt | default: p.title, loading: 'eager' }}
+      {%- else -%}
+        <canvas id="holo" aria-label="Animated preview of a picture floating above a spinning hologram fan" role="img"></canvas>
+        <span class="tag" id="stage-tag">Live preview · Snowflake</span>
+      {%- endif -%}
+    </div>
+    {%- unless section.settings.media_mode == 'photo' and p.featured_media -%}
+    <div class="scenes" role="group" aria-label="Choose what the preview shows">
+      <button class="chip" type="button" data-scene="snowflake" aria-pressed="true">Snowflake</button>
+      <button class="chip" type="button" data-scene="gift" aria-pressed="false">Gift box</button>
+      <button class="chip" type="button" data-scene="logo" aria-pressed="false">Your logo</button>
+      <button class="chip" type="button" data-scene="ghost" aria-pressed="false">Ghost</button>
+    </div>
+    <p class="stage-note">{{ section.settings.stage_note }}</p>
+    {%- endunless -%}
+  </div>
+
+  {%- form 'product', p, id: 'product-form', class: 'buy', data-bundle-index: bundle_index, data-plug-index: plug_index, data-update-url: update_url -%}
+    <input type="hidden" name="id" value="{{ v.id }}">
+    <p class="eyebrow">{{ section.settings.eyebrow }}</p>
+    <h1 id="p-title">{{ section.settings.heading | default: p.title }}</h1>
+    {%- if section.settings.lede != blank -%}<p class="lede">{{ section.settings.lede }}</p>{%- endif -%}
+    <div class="price-row">
+      <span class="price-now" id="price-now">{{ v.price | money }}</span>
+      <span class="price-was" id="price-was"{% unless v.compare_at_price > v.price %} hidden{% endunless %}>{{ v.compare_at_price | money }}</span>
+      <span class="save" id="price-save"{% unless v.compare_at_price > v.price %} hidden{% endunless %}>
+        {%- if v.compare_at_price > v.price -%}SAVE {{ v.compare_at_price | minus: v.price | times: 100.0 | divided_by: v.compare_at_price | round }}%{%- endif -%}
+      </span>
+    </div>
+
+    {%- assign ticks = section.blocks | where: 'type', 'tick' -%}
+    {%- if ticks.size > 0 -%}
+    <ul class="ticks">
+      {%- for b in ticks -%}<li {{ b.shopify_attributes }}>{{ b.settings.text }}</li>{%- endfor -%}
+    </ul>
+    {%- endif -%}
+
+    {%- if plug_index >= 0 -%}
+      {%- assign plug_opt = p.options_with_values[plug_index] -%}
+      <div>
+        <span class="opt-label" id="plug-label">{{ plug_opt.name }}: <span id="plug-name">{{ plug_opt.selected_value }}</span></span>
+        <fieldset class="plugs" aria-labelledby="plug-label">
+          {%- for val in plug_opt.values -%}
+            <label><input type="radio" name="plug" value="{{ val | escape }}"{% if val == plug_opt.selected_value %} checked{% endif %}><span>{{ val | split: ' ' | first }}</span></label>
+          {%- endfor -%}
+        </fieldset>
+      </div>
+    {%- endif -%}
+
+    {%- if bundle_index >= 0 -%}
+      {%- assign bundle_opt = p.options_with_values[bundle_index] -%}
+      <fieldset class="bundles" aria-label="How many">
+        {%- for val in bundle_opt.values -%}
+          {%- liquid
+            assign bv = nil
+            for variant in p.variants
+              if variant.options[bundle_index] == val
+                assign bv = variant
+                break
+              endif
+            endfor
+            assign qty = val | split: ' ' | first | plus: 0
+            if qty < 1
+              assign qty = 1
+            endif
+          -%}
+          <label>
+            <input type="radio" name="bundle" value="{{ val | escape }}"{% if val == bundle_opt.selected_value %} checked{% endif %}>
+            <span class="bundle">
+              {%- if forloop.index == section.settings.popular_index -%}<span class="flag">{{ section.settings.popular_label }}</span>{%- endif -%}
+              <span class="radio" aria-hidden="true"></span>
+              <span><span class="t">{{ val }}</span><br><span class="s">
+                {%- if qty > 1 -%}
+                  {{ bv.price | divided_by: qty | money }} each
+                  {%- if bv.compare_at_price > bv.price %} · Save {{ bv.compare_at_price | minus: bv.price | times: 100.0 | divided_by: bv.compare_at_price | round }}%{% endif -%}
+                {%- else -%}
+                  {{ section.settings.single_note }}
+                {%- endif -%}
+              </span></span>
+              <span class="p"><b>{{ bv.price | money }}</b>{% if bv.compare_at_price > bv.price %}<s>{{ bv.compare_at_price | money }}</s>{% endif %}</span>
+            </span>
+          </label>
+        {%- endfor -%}
+      </fieldset>
+    {%- endif -%}
+
+    <button class="add" id="add" type="submit"{% unless v.available %} disabled{% endunless %}>{% if v.available %}Add to basket{% else %}Sold out{% endif %}</button>
+    <p class="add-error" id="add-error" role="alert" hidden></p>
+    {%- if section.settings.show_payment_icons -%}
+    <div class="pay" aria-label="Accepted payments">
+      {%- for type in shop.enabled_payment_types -%}<span>{{ type | replace: '_', ' ' | upcase }}</span>{%- endfor -%}
+    </div>
+    {%- endif -%}
+    <div class="timeline" aria-label="Delivery estimate" data-ship="{{ section.settings.dispatch_days }}" data-min="{{ section.settings.deliver_min }}" data-max="{{ section.settings.deliver_max }}">
+      <div><b>Ordered</b><small id="d-order">Today</small></div>
+      <div><b>Dispatched</b><small id="d-ship">—</small></div>
+      <div><b>Delivered</b><small id="d-deliver">—</small></div>
+    </div>
+    {%- if section.settings.guarantee_title != blank -%}
+    <div class="guarantee">
+      <svg class="shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>
+      <div><strong>{{ section.settings.guarantee_title }}</strong><p>{{ section.settings.guarantee_text }}</p></div>
+    </div>
+    {%- endif -%}
+  {%- endform -%}
+</section>
+<script type="application/json" id="product-json">{{ p | json }}</script>
+
+{%- assign strip = section.blocks | where: 'type', 'strip' -%}
+{%- if strip.size > 0 -%}
+<div class="strip" aria-hidden="true">
+  <ul>
+    {%- for i in (1..2) -%}{%- for b in strip -%}<li>{{ b.settings.text }}</li>{%- endfor -%}{%- endfor -%}
+  </ul>
+</div>
+{%- endif -%}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Product hero",
+  "settings": [
+    { "type": "product", "id": "product", "label": "Product (used on the home page)" },
+    { "type": "select", "id": "media_mode", "label": "Left-hand media", "default": "hologram", "options": [
+      { "value": "hologram", "label": "Animated hologram preview" },
+      { "value": "photo", "label": "Product's main photo" } ] },
+    { "type": "text", "id": "stage_note", "label": "Note under preview", "default": "Animated illustration. The real fan shows full-colour pictures and video you upload." },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "WiFi 3D hologram fan" },
+    { "type": "text", "id": "heading", "label": "Heading (blank = product title)", "default": "Pictures that float in mid-air" },
+    { "type": "textarea", "id": "lede", "label": "Intro", "default": "Upload any image, video or logo from your phone. The LED blades spin so fast they disappear, and your picture hangs in the air like a hologram." },
+    { "type": "text", "id": "bundle_option", "label": "Bundle option name (lowercase)", "default": "bundle" },
+    { "type": "text", "id": "plug_option", "label": "Plug option name (lowercase)", "default": "plug" },
+    { "type": "range", "id": "popular_index", "label": "Highlight bundle number", "min": 0, "max": 5, "step": 1, "default": 2 },
+    { "type": "text", "id": "popular_label", "label": "Highlight label", "default": "Most popular" },
+    { "type": "text", "id": "single_note", "label": "Note under single item", "default": "Free tracked delivery" },
+    { "type": "checkbox", "id": "show_payment_icons", "label": "Show accepted payment types", "default": true },
+    { "type": "range", "id": "dispatch_days", "label": "Dispatch (working days)", "min": 0, "max": 10, "step": 1, "default": 2 },
+    { "type": "range", "id": "deliver_min", "label": "Delivery from (days)", "min": 1, "max": 30, "step": 1, "default": 7 },
+    { "type": "range", "id": "deliver_max", "label": "Delivery to (days)", "min": 1, "max": 30, "step": 1, "default": 12 },
+    { "type": "text", "id": "guarantee_title", "label": "Guarantee title", "default": "30-day money-back guarantee" },
+    { "type": "text", "id": "guarantee_text", "label": "Guarantee text", "default": "If it doesn't wow you, send it back within 30 days for a full refund." }
+  ],
+  "blocks": [
+    { "type": "tick", "name": "Feature tick", "settings": [ { "type": "text", "id": "text", "label": "Text" } ] },
+    { "type": "strip", "name": "Trust strip item", "settings": [ { "type": "text", "id": "text", "label": "Text" } ] }
+  ],
+  "presets": [ { "name": "Product hero" } ]
+}
+{% endschema %}

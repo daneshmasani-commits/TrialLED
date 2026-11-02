@@ -1,0 +1,3 @@
+{% layout none %}
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Gift card – {{ shop.name }}</title>{{ 'holofloat.css' | asset_url | stylesheet_tag }}</head>
+<body><main class="wrap page"><h1>Your {{ gift_card.initial_value | money }} gift card</h1><p>Code: <strong style="font-family:var(--mono)">{{ gift_card.code | format_code }}</strong></p><p>Balance: {{ gift_card.balance | money }}</p><p><a class="btn" href="{{ shop.url }}">Shop now</a></p></main></body></html>

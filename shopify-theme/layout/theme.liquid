@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="{{ request.locale.iso_code | default: 'en-GB' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{{ page_title }}{% unless page_title contains shop.name %} – {{ shop.name }}{% endunless %}</title>
+  {%- if page_description %}<meta name="description" content="{{ page_description | escape }}">{% endif %}
+  <link rel="canonical" href="{{ canonical_url }}">
+  {%- if settings.favicon %}<link rel="icon" href="{{ settings.favicon | image_url: width: 64 }}">{% endif %}
+  <meta property="og:site_name" content="{{ shop.name }}">
+  <meta property="og:title" content="{{ page_title | escape }}">
+  <meta property="og:url" content="{{ canonical_url }}">
+  {%- if page_image %}<meta property="og:image" content="https:{{ page_image | image_url: width: 1200 }}">{% endif %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+  {{ 'holofloat.css' | asset_url | stylesheet_tag }}
+  <style>
+    :root { --holo: {{ settings.color_accent }}; --festive: {{ settings.color_sale }}; --ink: {{ settings.color_background }}; }
+  </style>
+  {%- liquid
+    assign prot = all_products[settings.protection_product]
+    assign announce = settings.announcements | newline_to_br | split: '<br />'
+  -%}
+  <script>
+    window.HoloFloat = {
+      moneyFormat: {{ shop.money_format | json }},
+      addLabel: "Add to basket",
+      announcements: [{% for a in announce %}{% assign t = a | strip %}{% if t != blank %}{{ t | json }}{% unless forloop.last %},{% endunless %}{% endif %}{% endfor %}],
+      protection: {% if prot != blank and prot.available %}{ variantId: {{ prot.selected_or_first_available_variant.id }}, title: {{ prot.title | json }}, price: {{ prot.selected_or_first_available_variant.price }}, blurb: {{ settings.protection_blurb | json }} }{% else %}null{% endif %}
+    };
+  </script>
+  {{ content_for_header }}
+</head>
+<body>
+  <a class="visually-hidden" href="#top" style="position:absolute;left:-9999px">Skip to content</a>
+  {%- assign first_msg = announce | first | strip -%}
+  {%- if first_msg != blank -%}
+  <div class="announce" role="region" aria-label="Offers">
+    <div class="wrap"><span id="announce-text">{{ first_msg }}</span></div>
+  </div>
+  {%- endif -%}
+
+  <header class="site">
+    <div class="wrap">
+      <a class="logo" href="{{ routes.root_url }}">{% render 'logo' %}</a>
+      <nav class="main" aria-label="Main">
+        {%- for link in linklists[settings.main_menu].links -%}
+          <a href="{{ link.url }}">{{ link.title }}</a>
+        {%- else -%}
+          <a href="{{ routes.root_url }}#uses">Ideas</a>
+          <a href="{{ routes.root_url }}#how">How it works</a>
+          <a href="{{ routes.root_url }}#compare">Why HoloFloat</a>
+          <a href="{{ routes.root_url }}#faq">FAQ</a>
+        {%- endfor -%}
+      </nav>
+      <button class="cart-btn" id="open-cart" type="button" aria-label="Open basket">
+        Basket <span class="count" id="cart-count">{{ cart.item_count }}</span>
+      </button>
+    </div>
+  </header>
+
+  <main id="top">
+    {{ content_for_layout }}
+  </main>
+
+  <footer class="site">
+    <div class="wrap">
+      <div class="cols">
+        <div><a class="logo" href="{{ routes.root_url }}">{% render 'logo' %}</a><p style="margin-top:8px;max-width:40ch">{{ settings.footer_tagline }}</p></div>
+        <div class="links">
+          {%- for link in linklists[settings.footer_menu].links -%}
+            <a href="{{ link.url }}">{{ link.title }}</a>
+          {%- endfor -%}
+          {%- for policy in shop.policies -%}
+            <a href="{{ policy.url }}">{{ policy.title }}</a>
+          {%- endfor -%}
+          <a href="mailto:{{ settings.support_email }}">Contact</a>
+        </div>
+      </div>
+      <p>© {{ 'now' | date: '%Y' }} {{ shop.name }} · {{ settings.footer_line }}</p>
+    </div>
+  </footer>
+
+  <div class="scrim" id="scrim" hidden></div>
+  <aside class="drawer" id="drawer" aria-labelledby="cart-title" aria-hidden="true">
+    <div class="drawer-head">
+      <h2 id="cart-title">Your basket</h2>
+      <button class="x" id="close-cart" type="button" aria-label="Close basket">✕</button>
+    </div>
+    <div class="drawer-body" id="cart-body"><p class="empty">Loading…</p></div>
+    <div class="drawer-foot">
+      <div class="subtotal"><span>Subtotal</span><span id="subtotal">{{ cart.total_price | money }}</span></div>
+      <small>{{ settings.drawer_note }}</small>
+      <a class="add" id="checkout" href="{{ routes.root_url }}checkout">Checkout securely</a>
+    </div>
+  </aside>
+
+  <script src="{{ 'holofloat.js' | asset_url }}" defer></script>
+  <script src="{{ 'holofloat-hologram.js' | asset_url }}" defer></script>
+</body>
+</html>

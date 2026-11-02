@@ -1,0 +1,277 @@
+{
+  "sections": {
+    "hero": {
+      "type": "holo-product",
+      "blocks": {
+        "tick-1": {
+          "type": "tick",
+          "settings": {
+            "text": "Control it from your phone over WiFi"
+          }
+        },
+        "tick-2": {
+          "type": "tick",
+          "settings": {
+            "text": "Plays your own photos, videos and logos (MP4, JPG, PNG)"
+          }
+        },
+        "tick-3": {
+          "type": "tick",
+          "settings": {
+            "text": "Stops people in their tracks in a shop window"
+          }
+        },
+        "strip-1": {
+          "type": "strip",
+          "settings": {
+            "text": "Free tracked UK delivery"
+          }
+        },
+        "strip-2": {
+          "type": "strip",
+          "settings": {
+            "text": "30-day money-back guarantee"
+          }
+        },
+        "strip-3": {
+          "type": "strip",
+          "settings": {
+            "text": "WiFi app control"
+          }
+        },
+        "strip-4": {
+          "type": "strip",
+          "settings": {
+            "text": "Upload photos, video & logos"
+          }
+        },
+        "strip-5": {
+          "type": "strip",
+          "settings": {
+            "text": "Secure checkout"
+          }
+        }
+      },
+      "block_order": [
+        "tick-1",
+        "tick-2",
+        "tick-3",
+        "strip-1",
+        "strip-2",
+        "strip-3",
+        "strip-4",
+        "strip-5"
+      ],
+      "settings": {
+        "product": "holofloat-3d-hologram-fan"
+      }
+    },
+    "uses": {
+      "type": "holo-uses",
+      "blocks": {
+        "idea-1": {
+          "type": "idea",
+          "settings": {
+            "title": "Christmas windows",
+            "text": "A floating Santa, snowfall or a spinning bauble in the window. Neighbours and passers-by stop to look."
+          }
+        },
+        "idea-2": {
+          "type": "idea",
+          "settings": {
+            "title": "Shop and café signage",
+            "text": "Put your logo or today's offer in the air behind the counter. It gets noticed far more than a printed poster."
+          }
+        },
+        "idea-3": {
+          "type": "idea",
+          "settings": {
+            "title": "Parties and events",
+            "text": "Birthday names, wedding initials or a countdown floating above the dance floor."
+          }
+        },
+        "idea-4": {
+          "type": "idea",
+          "settings": {
+            "title": "Halloween scares",
+            "text": "A ghost or skull drifting in a dark window. Load a spooky video loop and wait for the reactions."
+          }
+        }
+      },
+      "block_order": [
+        "idea-1",
+        "idea-2",
+        "idea-3",
+        "idea-4"
+      ],
+      "settings": {
+        "text": "Swap what it shows in seconds from your phone. Santa in December, ghosts in October, your logo all year."
+      }
+    },
+    "how": {
+      "type": "holo-steps",
+      "blocks": {
+        "step-1": {
+          "type": "step",
+          "settings": {
+            "title": "Mount and plug in",
+            "text": "Fix the fan to a wall or stand where people can see it but can't reach the blades, then plug it in."
+          }
+        },
+        "step-2": {
+          "type": "step",
+          "settings": {
+            "title": "Connect your phone",
+            "text": "Join the fan's WiFi from the app. No cables and no computer needed."
+          }
+        },
+        "step-3": {
+          "type": "step",
+          "settings": {
+            "title": "Upload and play",
+            "text": "Pick photos, videos or your logo. Build a playlist and the fan loops it for you."
+          }
+        }
+      },
+      "block_order": [
+        "step-1",
+        "step-2",
+        "step-3"
+      ]
+    },
+    "compare": {
+      "type": "holo-compare",
+      "blocks": {
+        "row-1": {
+          "type": "row",
+          "settings": {
+            "label": "Gets noticed",
+            "them": "Blends into the background",
+            "us": "Moving 3D picture in mid-air"
+          }
+        },
+        "row-2": {
+          "type": "row",
+          "settings": {
+            "label": "Changing it",
+            "them": "Reprint every time",
+            "us": "New picture from your phone in seconds"
+          }
+        },
+        "row-3": {
+          "type": "row",
+          "settings": {
+            "label": "Video",
+            "them": "No",
+            "us": "Yes, plays clips on a loop"
+          }
+        },
+        "row-4": {
+          "type": "row",
+          "settings": {
+            "label": "Seasonal use",
+            "them": "One design, one season",
+            "us": "Christmas, Halloween, sales, birthdays"
+          }
+        },
+        "row-5": {
+          "type": "row",
+          "settings": {
+            "label": "After dark",
+            "them": "Disappears",
+            "us": "Glows brightest in dim light"
+          }
+        }
+      },
+      "block_order": [
+        "row-1",
+        "row-2",
+        "row-3",
+        "row-4",
+        "row-5"
+      ]
+    },
+    "faq": {
+      "type": "holo-faq",
+      "blocks": {
+        "qa-1": {
+          "type": "qa",
+          "settings": {
+            "q": "When will it arrive?",
+            "a": "Orders are dispatched within 1–2 working days with free tracked delivery, and usually arrive in 7–12 days. We email your tracking number when it ships."
+          }
+        },
+        "qa-2": {
+          "type": "qa",
+          "settings": {
+            "q": "How does the hologram work?",
+            "a": "The fan's arms are lined with LEDs. As they spin, the LEDs light up in exact patterns, and your eyes blend them into one picture that seems to float in the air."
+          }
+        },
+        "qa-3": {
+          "type": "qa",
+          "settings": {
+            "q": "What can I show on it?",
+            "a": "Photos, videos and logos in MP4, AVI, JPG or PNG format, uploaded over WiFi from the app on your phone or from a computer. Pictures with a black background look best, because black areas stay invisible and the subject appears to float."
+          }
+        },
+        "qa-4": {
+          "type": "qa",
+          "settings": {
+            "q": "Can I adjust it?",
+            "a": "Yes. You can change the brightness and rotate your picture to the right angle from the app."
+          }
+        },
+        "qa-5": {
+          "type": "qa",
+          "settings": {
+            "q": "Does it work in daylight?",
+            "a": "It works indoors in normal light and looks most striking in dim rooms, shop windows at night, and evening events. Very bright direct sunlight washes it out."
+          }
+        },
+        "qa-6": {
+          "type": "qa",
+          "settings": {
+            "q": "Is it safe?",
+            "a": "The blades spin fast, so mount it out of reach of children, pets and people walking past, and switch it off before touching it."
+          }
+        },
+        "qa-7": {
+          "type": "qa",
+          "settings": {
+            "q": "Which plug do I need?",
+            "a": "Choose UK, EU, US or AU when you order and we'll send the matching power adapter. It works on any mains voltage from 100 to 240V."
+          }
+        },
+        "qa-8": {
+          "type": "qa",
+          "settings": {
+            "q": "What if I'm not happy with it?",
+            "a": "You have 30 days to return it for a full refund. Email us and we'll sort it out."
+          }
+        }
+      },
+      "block_order": [
+        "qa-1",
+        "qa-2",
+        "qa-3",
+        "qa-4",
+        "qa-5",
+        "qa-6",
+        "qa-7",
+        "qa-8"
+      ]
+    },
+    "signup": {
+      "type": "holo-signup"
+    }
+  },
+  "order": [
+    "hero",
+    "uses",
+    "how",
+    "compare",
+    "faq",
+    "signup"
+  ]
+}

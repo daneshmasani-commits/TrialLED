@@ -1,0 +1,105 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "HoloFloat",
+    "theme_version": "1.0.0",
+    "theme_author": "HoloFloat",
+    "theme_documentation_url": "https://help.shopify.com",
+    "theme_support_url": "https://help.shopify.com"
+  },
+  {
+    "name": "Brand",
+    "settings": [
+      {
+        "type": "text",
+        "id": "logo_split",
+        "label": "Highlighted part of the store name",
+        "default": "Float"
+      },
+      {
+        "type": "image_picker",
+        "id": "favicon",
+        "label": "Favicon"
+      },
+      {
+        "type": "color",
+        "id": "color_accent",
+        "label": "Hologram accent",
+        "default": "#7cf4ff"
+      },
+      {
+        "type": "color",
+        "id": "color_sale",
+        "label": "Sale colour",
+        "default": "#ff4d5e"
+      },
+      {
+        "type": "color",
+        "id": "color_background",
+        "label": "Background",
+        "default": "#06070c"
+      },
+      {
+        "type": "text",
+        "id": "support_email",
+        "label": "Support email",
+        "default": "support@holofloat.store"
+      }
+    ]
+  },
+  {
+    "name": "Header & footer",
+    "settings": [
+      {
+        "type": "textarea",
+        "id": "announcements",
+        "label": "Announcement messages (one per line)",
+        "default": "Save up to 20% with 2 and 3 packs\nFree tracked UK delivery\n30-day money-back guarantee"
+      },
+      {
+        "type": "link_list",
+        "id": "main_menu",
+        "label": "Header menu (blank = page anchors)"
+      },
+      {
+        "type": "link_list",
+        "id": "footer_menu",
+        "label": "Footer menu"
+      },
+      {
+        "type": "text",
+        "id": "footer_tagline",
+        "label": "Footer tagline",
+        "default": "3D hologram fans for shop windows, parties and every season."
+      },
+      {
+        "type": "text",
+        "id": "footer_line",
+        "label": "Footer line",
+        "default": "Free tracked delivery · 30-day money-back guarantee"
+      }
+    ]
+  },
+  {
+    "name": "Basket",
+    "settings": [
+      {
+        "type": "product",
+        "id": "protection_product",
+        "label": "Delivery protection add-on product"
+      },
+      {
+        "type": "text",
+        "id": "protection_blurb",
+        "label": "Add-on description",
+        "default": "Free replacement if your parcel is lost, stolen or damaged."
+      },
+      {
+        "type": "text",
+        "id": "drawer_note",
+        "label": "Note under subtotal",
+        "default": "Free tracked delivery. VAT included."
+      }
+    ]
+  }
+]

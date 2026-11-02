@@ -1,0 +1,6 @@
+<section class="wrap page"><h1>Log in</h1>
+{%- form 'customer_login', class: 'form-stack' -%}{{ form.errors | default_errors }}
+<input type="email" name="customer[email]" placeholder="Email" aria-label="Email" autocomplete="email"><input type="password" name="customer[password]" placeholder="Password" aria-label="Password" autocomplete="current-password">
+<button class="btn" type="submit">Log in</button><a href="{{ routes.account_register_url }}">Create account</a>{%- endform -%}
+{%- form 'recover_customer_password', class: 'form-stack' -%}{% if form.posted_successfully? %}<p>We've emailed you a reset link.</p>{% endif %}<details><summary>Forgot your password?</summary><input type="email" name="email" placeholder="Email" aria-label="Email"><button class="btn" type="submit">Reset</button></details>{%- endform -%}
+</section>

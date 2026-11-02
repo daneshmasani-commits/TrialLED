@@ -1,0 +1,24 @@
+<section class="band" id="{{ section.settings.anchor }}" aria-labelledby="t-{{ section.id }}">
+  <div class="wrap">
+    <div class="band-head">
+      <p class="eyebrow">{{ section.settings.eyebrow }}</p>
+      <h2 id="t-{{ section.id }}">{{ section.settings.heading }}</h2>
+    </div>
+    <ol class="steps">
+      {%- for b in section.blocks -%}<li {{ b.shopify_attributes }}><h3>{{ b.settings.title }}</h3><p>{{ b.settings.text }}</p></li>{%- endfor -%}
+    </ol>
+  </div>
+</section>
+{% schema %}
+{
+  "name": "Steps",
+  "settings": [
+    { "type": "text", "id": "anchor", "label": "Anchor id", "default": "how" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "How it works" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Floating in three steps" }
+  ],
+  "blocks": [ { "type": "step", "name": "Step", "settings": [
+    { "type": "text", "id": "title", "label": "Title" }, { "type": "textarea", "id": "text", "label": "Text" } ] } ],
+  "presets": [ { "name": "Steps" } ]
+}
+{% endschema %}

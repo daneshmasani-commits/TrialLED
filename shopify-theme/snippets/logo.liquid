@@ -1,0 +1,6 @@
+{%- if settings.logo_split != blank and shop.name contains settings.logo_split -%}
+  {%- assign parts = shop.name | split: settings.logo_split -%}
+  {{ parts[0] }}<b>{{ settings.logo_split }}</b>{{ parts[1] }}
+{%- else -%}
+  {{ shop.name }}
+{%- endif -%}

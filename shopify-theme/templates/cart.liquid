@@ -1,0 +1,21 @@
+<section class="wrap page">
+  <h1>Your basket</h1>
+  {%- if cart.item_count > 0 -%}
+  <form action="{{ routes.cart_url }}" method="post" class="form-stack" style="max-width:none">
+    <table class="simple">
+      <thead><tr><th>Item</th><th>Qty</th><th>Total</th></tr></thead>
+      <tbody>
+      {%- for item in cart.items -%}
+        <tr><td><a href="{{ item.url }}">{{ item.product.title }}</a><br><small>{{ item.variant.title }}</small></td>
+        <td><input type="number" name="updates[]" value="{{ item.quantity }}" min="0" style="width:5em" aria-label="Quantity"></td>
+        <td>{{ item.final_line_price | money }}</td></tr>
+      {%- endfor -%}
+      </tbody>
+    </table>
+    <p><strong>Subtotal {{ cart.total_price | money }}</strong></p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="submit" name="update" style="background:var(--panel);color:var(--fg)">Update</button><button class="btn" type="submit" name="checkout">Checkout securely</button></div>
+  </form>
+  {%- else -%}
+  <p class="rte">Your basket is empty. <a href="{{ routes.root_url }}">Continue shopping</a></p>
+  {%- endif -%}
+</section>

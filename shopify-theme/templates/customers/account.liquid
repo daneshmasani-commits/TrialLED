@@ -1,0 +1,4 @@
+<section class="wrap page"><h1>Your account</h1><p><a href="{{ routes.account_logout_url }}">Log out</a> · <a href="{{ routes.account_addresses_url }}">Addresses</a></p>
+<table class="simple"><thead><tr><th>Order</th><th>Date</th><th>Status</th><th>Total</th></tr></thead><tbody>
+{%- for o in customer.orders -%}<tr><td><a href="{{ o.customer_url }}">{{ o.name }}</a></td><td>{{ o.created_at | date: '%-d %b %Y' }}</td><td>{{ o.fulfillment_status_label }}</td><td>{{ o.total_price | money }}</td></tr>{%- else -%}<tr><td colspan="4">No orders yet.</td></tr>{%- endfor -%}
+</tbody></table></section>

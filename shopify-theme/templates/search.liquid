@@ -1,0 +1,7 @@
+<section class="wrap page">
+  <h1>Search</h1>
+  <form action="{{ routes.search_url }}" class="form-stack"><input type="search" name="q" value="{{ search.terms | escape }}" placeholder="Search" aria-label="Search"></form>
+  {%- if search.performed -%}<div class="grid-list">
+    {%- for r in search.results -%}<a class="card" href="{{ r.url }}"><strong>{{ r.title }}</strong></a>{%- else -%}<p class="rte">No results.</p>{%- endfor -%}
+  </div>{%- endif -%}
+</section>

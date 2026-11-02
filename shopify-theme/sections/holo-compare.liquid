@@ -1,0 +1,31 @@
+<section class="band" id="{{ section.settings.anchor }}" aria-labelledby="t-{{ section.id }}">
+  <div class="wrap">
+    <div class="band-head">
+      <p class="eyebrow">{{ section.settings.eyebrow }}</p>
+      <h2 id="t-{{ section.id }}">{{ section.settings.heading }}</h2>
+    </div>
+    <div class="compare-scroll">
+      <table class="compare">
+        <thead><tr><th scope="col"></th><th scope="col">{{ section.settings.them }}</th><th scope="col" class="us">{{ section.settings.us }}</th></tr></thead>
+        <tbody>
+          {%- for b in section.blocks -%}<tr {{ b.shopify_attributes }}><td>{{ b.settings.label }}</td><td>{{ b.settings.them }}</td><td class="us">{{ b.settings.us }}</td></tr>{%- endfor -%}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% schema %}
+{
+  "name": "Comparison table",
+  "settings": [
+    { "type": "text", "id": "anchor", "label": "Anchor id", "default": "compare" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Why HoloFloat" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Printed sign vs HoloFloat" },
+    { "type": "text", "id": "them", "label": "Their column", "default": "Printed sign or poster" },
+    { "type": "text", "id": "us", "label": "Your column", "default": "HoloFloat" }
+  ],
+  "blocks": [ { "type": "row", "name": "Row", "settings": [
+    { "type": "text", "id": "label", "label": "Row label" }, { "type": "text", "id": "them", "label": "Them" }, { "type": "text", "id": "us", "label": "Us" } ] } ],
+  "presets": [ { "name": "Comparison table" } ]
+}
+{% endschema %}
