@@ -65,14 +65,64 @@
     {%- endif -%}
 
     {%- if plug_index >= 0 -%}
-      {%- assign plug_opt = p.options_with_values[plug_index] -%}
+      {%- liquid
+        assign plug_opt = p.options_with_values[plug_index]
+        assign cc = localization.country.iso_code
+        case cc
+          when 'GB'
+            assign region_key = 'UK'
+          when 'US'
+            assign region_key = 'US'
+          when 'AU'
+            assign region_key = 'AU'
+          else
+            assign region_key = 'EU'
+        endcase
+        assign eu_cc = 'DE'
+        if region_key == 'EU'
+          assign eu_cc = cc
+        endif
+        assign region_plug = plug_opt.values | first
+        for val in plug_opt.values
+          assign k = val | split: ' ' | first
+          if k == region_key
+            assign region_plug = val
+          endif
+        endfor
+      -%}
       <div>
-        <span class="opt-label" id="plug-label">{{ plug_opt.name }}: <span id="plug-name">{{ plug_opt.selected_value }}</span></span>
-        <fieldset class="plugs" aria-labelledby="plug-label">
+        <span class="opt-label" id="region-label">Where are you?</span>
+        <fieldset class="plugs" aria-labelledby="region-label">
           {%- for val in plug_opt.values -%}
-            <label><input type="radio" name="plug" value="{{ val | escape }}"{% if val == plug_opt.selected_value %} checked{% endif %}><span>{{ val | split: ' ' | first }}</span></label>
+            {%- liquid
+              assign k = val | split: ' ' | first
+              case k
+                when 'UK'
+                  assign code = 'GB'
+                when 'EU'
+                  assign code = eu_cc
+                else
+                  assign code = k
+              endcase
+              assign sym = ''
+              for c in localization.available_countries
+                if c.iso_code == code
+                  assign sym = c.currency.symbol
+                endif
+              endfor
+            -%}
+            <label><input type="radio" name="region" value="{{ code }}" data-plug="{{ val | escape }}"{% if k == region_key %} checked{% endif %}><span>{{ k }}{% if sym != blank %} <small class="cur">{{ sym }}</small>{% endif %}</span></label>
           {%- endfor -%}
         </fieldset>
+        <p class="plug-line">
+          <label for="plug-select">Plug</label>
+          <select id="plug-select">
+            {%- for val in plug_opt.values -%}
+              <option value="{{ val | escape }}"{% if val == region_plug %} selected{% endif %}>{{ val }}</option>
+            {%- endfor -%}
+          </select>
+          <span class="plug-hint">Matches your region. Change it if you need a different plug.</span>
+        </p>
       </div>
     {%- endif -%}
 
@@ -131,6 +181,10 @@
       <div><strong>{{ section.settings.guarantee_title }}</strong><p>{{ section.settings.guarantee_text }}</p></div>
     </div>
     {%- endif -%}
+  {%- endform -%}
+  {%- form 'localization', id: 'region-form' -%}
+    <input type="hidden" name="country_code" value="{{ localization.country.iso_code }}">
+    <input type="hidden" name="return_to" value="{{ request.path }}">
   {%- endform -%}
 </section>
 <script type="application/json" id="product-json">

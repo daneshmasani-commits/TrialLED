@@ -57,17 +57,6 @@
         {%- endfor -%}
       </nav>
       <div class="head-actions">
-      {%- if localization.available_countries.size > 1 -%}
-        {%- form 'localization', id: 'country-form', class: 'country-form' -%}
-          <label class="visually-hidden" for="country-select">Country</label>
-          <select id="country-select" name="country_code" onchange="this.form.submit()" aria-label="Country / currency">
-            {%- for c in localization.available_countries -%}
-              <option value="{{ c.iso_code }}"{% if c.iso_code == localization.country.iso_code %} selected{% endif %}>{{ c.name }} ({{ c.currency.iso_code }} {{ c.currency.symbol }})</option>
-            {%- endfor -%}
-          </select>
-          <noscript><button type="submit">Update</button></noscript>
-        {%- endform -%}
-      {%- endif -%}
       <button class="cart-btn" id="open-cart" type="button" aria-label="Open basket">
         Basket <span class="count" id="cart-count">{{ cart.item_count }}</span>
       </button>

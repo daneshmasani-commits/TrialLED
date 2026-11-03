@@ -6,3 +6,8 @@
   background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
   background-position: calc(100% - 16px) 55%, calc(100% - 11px) 55%; background-size: 5px 5px; background-repeat: no-repeat; }
 @media (max-width: 420px) { .country-form select { max-width: 38vw; } }
+.plugs .cur { color: var(--muted); font-size: 0.8em; margin-left: 2px; }
+.plugs input:checked + span .cur { color: var(--holo); }
+.plug-line { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; font-size: 0.85rem; color: var(--muted); }
+.plug-line select { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 5px 10px; color: var(--fg); font: inherit; }
+.plug-hint { flex-basis: 100%; font-size: 0.8rem; }
