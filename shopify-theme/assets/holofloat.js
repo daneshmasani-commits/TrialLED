@@ -45,7 +45,7 @@
     var current = function () {
       var want = [];
       if (bundleIdx >= 0) want[bundleIdx] = selected("bundle");
-      if (plugIdx >= 0 && $("plug-select")) want[plugIdx] = $("plug-select").value;
+      if (plugIdx >= 0) want[plugIdx] = selected("plug");
       return product.variants.find(function (v) {
         return v.options.every(function (o, i) { return want[i] === undefined || want[i] === o; });
       }) || product.variants[0];
@@ -59,6 +59,7 @@
         was.textContent = money(v.compare_at_price);
         save.textContent = "SAVE " + Math.round((1 - v.price / v.compare_at_price) * 100) + "%";
       } else { was.hidden = save.hidden = true; }
+      if ($("plug-name")) $("plug-name").textContent = selected("plug");
       var btn = $("add");
       btn.disabled = !v.available;
       btn.textContent = v.available ? cfg.addLabel || "Add to basket" : "Sold out";
@@ -67,29 +68,7 @@
         var u = new URL(location.href); u.searchParams.set("variant", v.id); history.replaceState(null, "", u);
       }
     };
-    // Keep the chosen pack when the page reloads in another currency.
-    try {
-      var keep = sessionStorage.getItem("hf-bundle");
-      if (keep) {
-        sessionStorage.removeItem("hf-bundle");
-        form.querySelectorAll('input[name="bundle"]').forEach(function (el) { if (el.value === keep) el.checked = true; });
-      }
-    } catch (e) {}
-    form.querySelectorAll('input[name="bundle"]').forEach(function (el) { el.addEventListener("change", render); });
-    if ($("plug-select")) $("plug-select").addEventListener("change", render);
-    var regionForm = $("region-form");
-    form.querySelectorAll('input[name="region"]').forEach(function (el) {
-      el.addEventListener("change", function () {
-        if ($("plug-select")) $("plug-select").value = el.dataset.plug;
-        render();
-        if (!regionForm || regionForm.querySelector('[name="country_code"]').value === el.value) return;
-        try { sessionStorage.setItem("hf-bundle", selected("bundle")); } catch (e) {}
-        regionForm.querySelector('[name="country_code"]').value = el.value;
-        regionForm.querySelector('[name="return_to"]').value = location.pathname + location.hash;
-        $("price-now").style.opacity = 0.4;
-        regionForm.submit();
-      });
-    });
+    form.querySelectorAll('input[name="bundle"], input[name="plug"]').forEach(function (el) { el.addEventListener("change", render); });
     render();
 
     form.addEventListener("submit", function (e) {
